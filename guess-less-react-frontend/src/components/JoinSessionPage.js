@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import {joinSession} from '../websocket/websocket';
+import { useNavigate } from 'react-router-dom';
+import { useWebSocket } from '../websocket/WebSocketContext';
 
 const JoinSessionPage = () => {
   const [sessionId, setSessionId] = useState('');
   const [username, setUsername] = useState('');
   const [ws, setWs] = useState(null);
+  const navigate = useNavigate();
+  const [sessionStatus, setSessionStatus] = useState('SessionNotJoined');
+  const { setWebSocket } = useWebSocket();
   
   const connectWebSocket = () => {
       const socket = new WebSocket('ws://localhost:8080');
@@ -12,12 +17,22 @@ const JoinSessionPage = () => {
       socket.onopen = () => {
           console.log('WebSocket connected');
           setWs(socket);
+          setWebSocket(ws);
           joinSession(socket,sessionId,username);
       };
   
       socket.onmessage = (event) => {
-          console.log('Received:', event.data);
-          // Handle received messages from the server
+          const data_received = JSON.parse(event.data)
+          console.log('Received:', data_received);
+
+          if (data_received.type == "session_joined"){
+            console.log('You joined the session');
+            setSessionStatus('SessionJoined');
+          }
+
+          if (data_received.type == "session_started"){
+            navigate('/run-session');
+          }
       };
   
       socket.onclose = () => {
@@ -25,7 +40,6 @@ const JoinSessionPage = () => {
           setWs(null);
       };
   };
-  
 
 const handleJoinSession = () => {
   connectWebSocket();
@@ -41,7 +55,10 @@ const handleInputChangeUsername = event => {
   };
 
   return (
+
     <div>
+      {sessionStatus == 'SessionNotJoined' && (
+      <div>
       <h2>Join an Existing Session</h2>
       <input
         type="text"
@@ -57,6 +74,15 @@ const handleInputChangeUsername = event => {
       />
       <button onClick={handleJoinSession}>Join Session</button>
     </div>
+      )}
+      {sessionStatus == 'SessionJoined' && (
+      <div>
+        <h2>You joined the session, Please hold tight until the owner starts the game.</h2>
+      </div>
+      )}
+    </div>
+
+
   );
 };
 

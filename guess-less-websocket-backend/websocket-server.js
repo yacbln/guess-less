@@ -19,22 +19,15 @@ wss.on('connection', function connection(ws) {
 
                 sessions[sessionId] = [ws];
                 sessions_owners[sessionId] = ws
-                // Send the session ID back to the client
-                console.log("== printing sessions while creating: ", sessions)
+
                 ws.send(JSON.stringify({ type: 'session_created', sessionId }));
                 break;
             case 'join_session':
-                // Extract session ID from the message
                 const joinSessionId = data.sessionId;
                 const username = data.username
-                console.log("Joined Data: ",data);
-                console.log("Session ID: ",joinSessionId);
-                console.log("Username: ",username);
-                // Check if the session exists
+
                 if (sessions[joinSessionId]) {
                     sessions[joinSessionId].push(ws);
-                    
-                    console.log("== printing sessions while joining: ", sessions)
                     message_tosend_tojoiner = JSON.stringify({ type: 'session_joined', sessionId: joinSessionId, username:username }) 
                     message_tosend_toowner = JSON.stringify({ type: 'user_joined', sessionId: joinSessionId, username:username })
                     ws.send(message_tosend_tojoiner);
@@ -44,6 +37,14 @@ wss.on('connection', function connection(ws) {
                     // Send an error message to the client if the session does not exist
                     ws.send(JSON.stringify({ type: 'session_not_found', sessionId: joinSessionId }));
                 }
+                break;
+            case 'start_session':
+                // Send the session ID back to the client
+                console.log("request to start session is received, sending back to each user in session")
+
+                sessions[data.sessionId].forEach(function each(client){
+                    client.send(JSON.stringify({ type: 'session_started'}));
+                });
                 break;
             default:
                 break; 

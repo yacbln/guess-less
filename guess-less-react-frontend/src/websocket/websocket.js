@@ -1,4 +1,3 @@
-// Function to send a message
 function sendMessage(ws,message) {
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(message));
@@ -15,9 +14,13 @@ function joinSession (ws,sessionId_val,username_val) {
     sendMessage(ws,{ type: 'join_session', sessionId:sessionId_val, username:username_val});
 };
 
+function requestStartSession (ws,sessionId_val) {
+    sendMessage(ws,{ type: 'start_session',sessionId:sessionId_val});
+};
 
-// Export WebSocket instance and functions
+
 module.exports = {
     createSession,
-    joinSession
+    joinSession, 
+    requestStartSession
 };
