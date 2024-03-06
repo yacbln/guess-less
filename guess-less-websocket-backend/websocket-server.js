@@ -46,6 +46,15 @@ wss.on('connection', function connection(ws) {
                     client.send(JSON.stringify({ type: 'session_started'}));
                 });
                 break;
+            case 'in_session':
+                // Send the session ID back to the client
+                // console.log("In-session message received.")
+                // console.log("printing session ID: ",data.sessionId)
+                // console.log("pritinting message: ",data.message)
+                sessions[data.sessionId].forEach(function each(client){
+                    client.send(JSON.stringify({ message:data.message}));
+                });
+                break;
             default:
                 break; 
         }

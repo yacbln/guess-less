@@ -18,9 +18,14 @@ function requestStartSession (ws,sessionId_val) {
     sendMessage(ws,{ type: 'start_session',sessionId:sessionId_val});
 };
 
+function sendInSessionMessage(ws,sessionId_val,message){
+    sendMessage(ws,{ type:'in_session',sessionId:sessionId_val,message:message});
+    
+}
 
 module.exports = {
     createSession,
     joinSession, 
-    requestStartSession
+    requestStartSession,
+    sendInSessionMessage
 };

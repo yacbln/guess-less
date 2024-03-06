@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
 import {joinSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
-import { useWebSocket } from '../websocket/WebSocketContext';
 
-const JoinSessionPage = () => {
-  const [sessionId, setSessionId] = useState('');
+
+const JoinSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
   const [username, setUsername] = useState('');
-  const [ws, setWs] = useState(null);
   const navigate = useNavigate();
   const [sessionStatus, setSessionStatus] = useState('SessionNotJoined');
-  const { setWebSocket } = useWebSocket();
-  
+  const [sessionIdToJoin, setSessionIdToJoin] = useState(null);
+
   const connectWebSocket = () => {
       const socket = new WebSocket('ws://localhost:8080');
   
       socket.onopen = () => {
           console.log('WebSocket connected');
           setWs(socket);
-          setWebSocket(ws);
-          joinSession(socket,sessionId,username);
+          joinSession(socket,sessionIdToJoin,username);
       };
   
       socket.onmessage = (event) => {
@@ -28,6 +25,7 @@ const JoinSessionPage = () => {
           if (data_received.type == "session_joined"){
             console.log('You joined the session');
             setSessionStatus('SessionJoined');
+            setSessionId(sessionIdToJoin)
           }
 
           if (data_received.type == "session_started"){
@@ -47,7 +45,7 @@ const handleJoinSession = () => {
 
 
 const handleInputChangeSession = event => {
-    setSessionId(event.target.value);
+    setSessionIdToJoin(event.target.value);
   };
 
 const handleInputChangeUsername = event => {

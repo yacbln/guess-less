@@ -1,33 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {createSession,requestStartSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
-import { useWebSocket } from '../websocket/WebSocketContext';
 
-const CreateSessionPage = () => {
-  const [ws, setWs] = useState(null);
+
+const CreateSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
   const [usersJoinedList, setUsersJoinedList] = useState([]);
-  const [sessionId, setSessionID] = useState(null)
   const [sessionStatus, setSessionStatus] = useState('SessionNotCreated');
   const navigate = useNavigate();
-  const { setWebSocket } = useWebSocket();
+  
 
-  useEffect(() => {
-    console.log('WebSocket connection:', ws);
-  }, [ws]);
   const connectWebSocket = () => {
     const socket = new WebSocket('ws://localhost:8080');
 
     socket.onopen = () => {
         console.log('WebSocket connected');
         setWs(socket);
-        setWebSocket(socket);
         createSession(socket);
     };
     socket.onmessage = (event) => {
         const data_received = JSON.parse(event.data)
         console.log('Received:', data_received);
         if (data_received.type == "session_created"){
-            setSessionID(data_received.sessionId);
+            setSessionId(data_received.sessionId);
             setSessionStatus('WaitingForUsers');
         }
 
@@ -40,7 +34,6 @@ const CreateSessionPage = () => {
         }
 
         if (data_received.type == "session_started"){
-
           navigate('/run-session');
         }
     };
