@@ -1,9 +1,11 @@
 const WebSocket = require('ws');
+const Game = require('./Game.js');
 
 const wss = new WebSocket.Server({ port: 8080 });
 
 const sessions = {};
 const sessions_owners = {}
+const game_objects = {}
 
 wss.on('connection', function connection(ws) {
     console.log('A new client connected');
@@ -39,9 +41,11 @@ wss.on('connection', function connection(ws) {
                 }
                 break;
             case 'start_session':
-                // Send the session ID back to the client
                 console.log("request to start session is received, sending back to each user in session")
-
+                //instantiate a game object specific to the session ID
+                const gameObject = new Game();
+                game_objects[data.sessionId] = gameObject;
+                //Let the clients know that the game session was started
                 sessions[data.sessionId].forEach(function each(client){
                     client.send(JSON.stringify({ type: 'session_started'}));
                 });
@@ -51,9 +55,25 @@ wss.on('connection', function connection(ws) {
                 // console.log("In-session message received.")
                 // console.log("printing session ID: ",data.sessionId)
                 // console.log("pritinting message: ",data.message)
-                sessions[data.sessionId].forEach(function each(client){
-                    client.send(JSON.stringify({ message:data.message}));
-                });
+                try{
+                    if(game_objects[data.sessionId].takeGuess(data.message)){
+                        //anounce a winner
+                        ws.send(JSON.stringify({ message: 'win'}));
+                        //anounce to other players that they lost the game 
+                        sessions[data.sessionId].forEach(function each(client){
+                        if (client != ws){
+                            client.send(JSON.stringify({ message: 'lose'}));
+                        }
+                        // kill the game object 
+                        game_objects[data.sessionId] = null;
+                    });
+                    }
+                } catch (error) {
+                    console.error('An error occurred:', error.message);
+                }
+                // sessions[data.sessionId].forEach(function each(client){
+                //     client.send(JSON.stringify({ message:data.message}));
+                // });
                 break;
             default:
                 break; 
