@@ -6,8 +6,8 @@ function sendMessage(ws,message) {
     }
 }
 
-function createSession (ws) {
-    sendMessage(ws,{ type: 'create_session' });
+function createSession (ws,username_val) {
+    sendMessage(ws,{ type: 'create_session',username:username_val });
   };
 
 function joinSession (ws,sessionId_val,username_val) {

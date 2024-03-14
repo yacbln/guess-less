@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 const CreateSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
+  const [username, setUsername] = useState('');
   const [usersJoinedList, setUsersJoinedList] = useState([]);
   const [sessionStatus, setSessionStatus] = useState('SessionNotCreated');
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
     socket.onopen = () => {
         console.log('WebSocket connected');
         setWs(socket);
-        createSession(socket);
+        createSession(socket,username);
     };
     socket.onmessage = (event) => {
         const data_received = JSON.parse(event.data)
@@ -54,10 +55,21 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
     requestStartSession(ws,sessionId);
   };
 
+  const handleInputChangeUsername = event => {
+    setUsername(event.target.value);
+  };
+
   return (
     <div>
       {sessionStatus == 'SessionNotCreated' && (
+      
       <div>
+          <input
+        type="text"
+        placeholder="Enter Username"
+        value={username}
+        onChange={handleInputChangeUsername}
+      />
         <h2>Create a New Session</h2>
         <button onClick={handleCreateSession}>Create Session</button>
       </div>

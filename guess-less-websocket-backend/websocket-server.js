@@ -5,12 +5,13 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 const sessions = {};
 const sessions_owners = {}
+const sessions_usernames = {}
 const game_objects = {}
 
 wss.on('connection', function connection(ws) {
     console.log('A new client connected');
 
-    ws.on('message', function incoming(message) {
+    ws.on('message', async function incoming(message) {
         console.log('Received:', message);
 
         const data = JSON.parse(message);
@@ -21,7 +22,8 @@ wss.on('connection', function connection(ws) {
 
                 sessions[sessionId] = [ws];
                 sessions_owners[sessionId] = ws
-
+                sessions_usernames[sessionId] = [data.username]
+                console.log("---------- starting session username list: ",sessions_usernames[sessionId])
                 ws.send(JSON.stringify({ type: 'session_created', sessionId }));
                 break;
             case 'join_session':
@@ -30,6 +32,7 @@ wss.on('connection', function connection(ws) {
 
                 if (sessions[joinSessionId]) {
                     sessions[joinSessionId].push(ws);
+                    sessions_usernames[joinSessionId].push(username);
                     message_tosend_tojoiner = JSON.stringify({ type: 'session_joined', sessionId: joinSessionId, username:username }) 
                     message_tosend_toowner = JSON.stringify({ type: 'user_joined', sessionId: joinSessionId, username:username })
                     ws.send(message_tosend_tojoiner);
@@ -43,37 +46,65 @@ wss.on('connection', function connection(ws) {
             case 'start_session':
                 console.log("request to start session is received, sending back to each user in session")
                 //instantiate a game object specific to the session ID
-                const gameObject = new Game();
+                const gameObject = new Game(sessions[data.sessionId].length);
                 game_objects[data.sessionId] = gameObject;
+                const first_turn = game_objects[data.sessionId].updateTurn() 
+                console.log("first turn is: ", first_turn)
                 //Let the clients know that the game session was started
-                sessions[data.sessionId].forEach(function each(client){
-                    client.send(JSON.stringify({ type: 'session_started'}));
+                sessions[data.sessionId].forEach(function each(client,index){
+
+                    if (index == first_turn){
+                        client.send(JSON.stringify({ type: 'session_started',turn:true}));
+                    }
+                    else {
+                        client.send(JSON.stringify({ type: 'session_started',turn:false}));
+                    }
                 });
                 break;
             case 'in_session':
                 // Send the session ID back to the client
-                // console.log("In-session message received.")
-                // console.log("printing session ID: ",data.sessionId)
-                // console.log("pritinting message: ",data.message)
-                try{
-                    // if(game_objects[data.sessionId].se(data.message)){
-                    //     //anounce a winner
-                    //     ws.send(JSON.stringify({ message: 'win'}));
-                    //     //anounce to other players that they lost the game 
-                    //     sessions[data.sessionId].forEach(function each(client){
-                    //     if (client != ws){
-                    //         client.send(JSON.stringify({ message: 'lose'}));
-                    //     }
-                    //     // kill the game object 
-                    //     game_objects[data.sessionId] = null;
-                    // });
-                    // }
+                console.log("In-session message received.")
+                console.log("printing session ID: ",data.sessionId)
+                console.log("pritinting message: ",data.message)
+                
+                // first broadcast message to others in session 
+                sessions[data.sessionId].forEach(function each(client,index){
+                    if (ws != client){
+                        // console.log("to be sent to: ", sessions_usernames[joinSessionId][index])
+                        client.send(JSON.stringify({ message: data.message, user:sessions_usernames[data.sessionId][index]}));
+                    }
+                });
 
-                    const ans= game_objects[data.sessionId].sendChat(data.message)
+                const ans= await game_objects[data.sessionId].sendChat(data.message)
 
-                } catch (error) {
-                    console.error('An error occurred:', error.message);
+                if ( ans == 'win'){
+                    // end the game, notify accordingly
+                    ws.send(JSON.stringify({ message: 'win'}));
+                    sessions[data.sessionId].forEach(function each(client){
+                    if (client != ws){
+                        client.send(JSON.stringify({ message: 'lose'}));
+                    }
+                    // kill the game object 
+                    game_objects[data.sessionId] = null;
+                    });
+
+                } else {
+                    // send the message, update the turn
+                    console.log("got a no-win message..");
+
+                    const new_turn = game_objects[data.sessionId].updateTurn();
+
+                    console.log("new turn is: ", new_turn);
+                    sessions[data.sessionId].forEach(function each(client,index){
+                        if (index == new_turn){
+                            client.send(JSON.stringify({ message: ans, turn:true}));
+                        }
+                        else {
+                            client.send(JSON.stringify({ message: ans}));
+                        }
+                    });
                 }
+
                 // sessions[data.sessionId].forEach(function each(client){
                 //     client.send(JSON.stringify({ message:data.message}));
                 // });
