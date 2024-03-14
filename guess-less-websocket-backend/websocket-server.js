@@ -56,18 +56,21 @@ wss.on('connection', function connection(ws) {
                 // console.log("printing session ID: ",data.sessionId)
                 // console.log("pritinting message: ",data.message)
                 try{
-                    if(game_objects[data.sessionId].takeGuess(data.message)){
-                        //anounce a winner
-                        ws.send(JSON.stringify({ message: 'win'}));
-                        //anounce to other players that they lost the game 
-                        sessions[data.sessionId].forEach(function each(client){
-                        if (client != ws){
-                            client.send(JSON.stringify({ message: 'lose'}));
-                        }
-                        // kill the game object 
-                        game_objects[data.sessionId] = null;
-                    });
-                    }
+                    // if(game_objects[data.sessionId].se(data.message)){
+                    //     //anounce a winner
+                    //     ws.send(JSON.stringify({ message: 'win'}));
+                    //     //anounce to other players that they lost the game 
+                    //     sessions[data.sessionId].forEach(function each(client){
+                    //     if (client != ws){
+                    //         client.send(JSON.stringify({ message: 'lose'}));
+                    //     }
+                    //     // kill the game object 
+                    //     game_objects[data.sessionId] = null;
+                    // });
+                    // }
+
+                    const ans= game_objects[data.sessionId].sendChat(data.message)
+
                 } catch (error) {
                     console.error('An error occurred:', error.message);
                 }
