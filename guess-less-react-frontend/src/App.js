@@ -10,6 +10,8 @@ const App = () => {
 
   const [ws, setWs] = useState(null);
   const [sessionId, setSessionId] = useState(null);
+  const [hint, setHint] = useState('');
+  const [initTurn, setInitTurn] = useState(false);
 
   useEffect(() => {
     console.log('From App.js: WebSocket connection:', ws);
@@ -19,9 +21,9 @@ const App = () => {
       <Router>
           <Routes>
             <Route exact path="/" element={<HomePage/>} />
-            <Route path="/create-session" element={<CreateSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId}/>} />
-            <Route path="/join-session" element={<JoinSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId}/>} />
-            <Route path="/run-session" element={<RunningSessionPage setWs={setWs} ws={ws} sessionId={sessionId}/>} />
+            <Route path="/create-session" element={<CreateSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId} setHint={setHint} setInitTurn={setInitTurn}/>} />
+            <Route path="/join-session" element={<JoinSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId} setHint={setHint} setInitTurn={setInitTurn}/>} />
+            <Route path="/run-session" element={<RunningSessionPage setWs={setWs} ws={ws} sessionId={sessionId} hint={hint} initTurn={initTurn}/>} />
           </Routes>
       </Router>
     </div>

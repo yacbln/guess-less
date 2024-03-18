@@ -1,9 +1,10 @@
 import {React,useState} from 'react';
 import {sendInSessionMessage} from '../websocket/websocket';
+import CountdownTimer from './misc/Timer'
 
-const RunningSessionPage = ({setWs,ws,sessionId}) => {
+const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
   const [message, setMessage] = useState('');
-  const [gameStatus, setGameStatus] = useState('');
+  const [gameStatus, setGameStatus] = useState(initTurn);
   const [messagesList, setMessagesList] = useState([]);
 
   ws.onmessage = (event) => {
@@ -11,7 +12,6 @@ const RunningSessionPage = ({setWs,ws,sessionId}) => {
     console.log('Received:', data_received);
     console.log('Message received is: ', data_received.message)
 
-    
     if (data_received.hasOwnProperty('user')){
       addMessage(data_received.message,data_received.user)
     }
@@ -20,9 +20,13 @@ const RunningSessionPage = ({setWs,ws,sessionId}) => {
     }
     else {
       addMessage(data_received.message,"Moderator")
-
-      if
     }
+
+    if (data_received.hasOwnProperty('turn')){
+      setGameStatus(data_received.turn)
+    
+    }
+
 
 };
   ws.onclose = () => {
@@ -46,18 +50,26 @@ const RunningSessionPage = ({setWs,ws,sessionId}) => {
   };
 
   return (
-    <div >
+    <div className="chat-container">
+
+    <div className="chat-header">   
+        <CountdownTimer></CountdownTimer>
+        <div className="participants-list">Participants</div>
+    </div>
+    <div className="chat-input">
       <input
         type="text"
         placeholder="Take a Guess"
         value={message}
         onChange={handleInputChangeMessage}
       />
-      { gameStatus == 'turn' && 
-      (<button onClick={handleSendingMessage}>Broadcast</button>
+      { gameStatus == 'y' && 
+      (<button onClick={handleSendingMessage}>S</button>
       )}
+    </div>
       <div>
-      <h2>Session ID is: {sessionId}</h2>
+      {/* <h2>Session ID is: {sessionId}</h2> */}
+      <h1>Hint: {hint}</h1>
       <ul>
       {messagesList.map((item, index) => (
           <li key={index}>{item}</li>

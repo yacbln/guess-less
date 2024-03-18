@@ -50,14 +50,16 @@ wss.on('connection', function connection(ws) {
                 game_objects[data.sessionId] = gameObject;
                 const first_turn = game_objects[data.sessionId].updateTurn() 
                 console.log("first turn is: ", first_turn)
+                const hint = await game_objects[data.sessionId].getHint() 
+                console.log("====the hint is: ", hint)
                 //Let the clients know that the game session was started
                 sessions[data.sessionId].forEach(function each(client,index){
 
                     if (index == first_turn){
-                        client.send(JSON.stringify({ type: 'session_started',turn:true}));
+                        client.send(JSON.stringify({ type: 'session_started',turn:'y',hint:hint}));
                     }
                     else {
-                        client.send(JSON.stringify({ type: 'session_started',turn:false}));
+                        client.send(JSON.stringify({ type: 'session_started',turn:'n',hint:hint}));
                     }
                 });
                 break;
@@ -97,10 +99,10 @@ wss.on('connection', function connection(ws) {
                     console.log("new turn is: ", new_turn);
                     sessions[data.sessionId].forEach(function each(client,index){
                         if (index == new_turn){
-                            client.send(JSON.stringify({ message: ans, turn:true}));
+                            client.send(JSON.stringify({ message: ans, turn:'y'}));
                         }
                         else {
-                            client.send(JSON.stringify({ message: ans}));
+                            client.send(JSON.stringify({ message: ans, turn:'n'}));
                         }
                     });
                 }

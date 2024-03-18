@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {createSession,requestStartSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
+import './RunningSessionPage.css';
 
 
-const CreateSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
+const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
   const [username, setUsername] = useState('');
   const [usersJoinedList, setUsersJoinedList] = useState([]);
   const [sessionStatus, setSessionStatus] = useState('SessionNotCreated');
@@ -35,6 +36,8 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
         }
 
         if (data_received.type == "session_started"){
+          setHint(data_received.hint)
+          setInitTurn(data_received.turn)
           navigate('/run-session');
         }
     };

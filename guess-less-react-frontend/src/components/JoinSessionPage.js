@@ -3,7 +3,7 @@ import {joinSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
 
 
-const JoinSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
+const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
   const [sessionStatus, setSessionStatus] = useState('SessionNotJoined');
@@ -29,6 +29,8 @@ const JoinSessionPage = ({setWs,setSessionId,ws,sessionId}) => {
           }
 
           if (data_received.type == "session_started"){
+            setHint(data_received.hint)
+            setInitTurn(data_received.turn)
             navigate('/run-session');
           }
       };

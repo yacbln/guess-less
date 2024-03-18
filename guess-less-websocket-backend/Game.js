@@ -16,8 +16,8 @@ class Game {
     async initializeChat() {
         // tell the chat bot to pick a random word
         const wrd = await this.getResponse(
-            'Pick a random word. Answer in one word only.',
-            'You are a helpful assistant.'
+            'Pick a random word.',
+            'You are a vocabulary assistant. Answer in one word only.'
             );
         console.log("the word generated is: ", wrd);
         if (wrd[wrd.length -1] == '.'){
@@ -34,7 +34,7 @@ class Game {
 
         // tell the chat bot to give a hint about the word
         this.hint = await this.getResponse(
-            'Give me a hint about the word. Keep it short.',
+            'Give me a hint about the word. Keep it short and obscure.',
             `You are a helpful assistant helping me guess the word ${this.word}`
             );
 
@@ -60,6 +60,15 @@ class Game {
     updateTurn(){
         this.cur_turn = (this.cur_turn +1)% this.nbr_players;
         return this.cur_turn;
+    }
+
+    async getHint(){
+
+        while (this.hint === undefined) {
+            await new Promise(resolve => setTimeout(resolve, 100)); 
+         }
+          
+        return this.hint;
     }
 
     sendChat(user_prompt)  {
