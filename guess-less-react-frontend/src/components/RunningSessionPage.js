@@ -1,6 +1,7 @@
 import {React,useState} from 'react';
 import {sendInSessionMessage} from '../websocket/websocket';
 import CountdownTimer from './misc/Timer'
+import Message from './misc/Message';
 
 const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
   const [message, setMessage] = useState('');
@@ -52,36 +53,45 @@ const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
   return (
     <div className="chat-container">
 
-    <div className="chat-header">   
+      <div className="chat-header">   
         <CountdownTimer></CountdownTimer>
         <div className="participants-list">Participants</div>
+
+        <h1>Hint: {hint}</h1>
+        {gameStatus == 'win' && (
+        <h2>You Guessed it right !!! </h2>
+        )}
+        {gameStatus == 'lose' && (
+        <h2>Someone guessed it right. Better luck next time </h2>
+        )}
+      </div>
+      
+      <div className="chat-messages">
+      {messagesList.map((msg,idx) => (
+        <Message key={idx} text={msg} user={{name:"Yacine",avatar:"../../images/avatar.png"}} isCurrentUser={true} />
+      ))}
     </div>
-    <div className="chat-input">
-      <input
+
+      {/* <div>
+        <ul className="chat-messages">
+        {messagesList.map((item, index) => (
+            <li key={index}>{item}</li>
+        ))}
+        </ul>
+      </div> */}
+    
+
+      <div className="chat-input">
+        <input
         type="text"
         placeholder="Take a Guess"
         value={message}
         onChange={handleInputChangeMessage}
-      />
-      { gameStatus == 'y' && 
-      (<button onClick={handleSendingMessage}>S</button>
-      )}
-    </div>
-      <div>
-      {/* <h2>Session ID is: {sessionId}</h2> */}
-      <h1>Hint: {hint}</h1>
-      <ul>
-      {messagesList.map((item, index) => (
-          <li key={index}>{item}</li>
-      ))}
-      </ul>
-    </div>
-    {gameStatus == 'win' && (
-      <h2>You Guessed it right !!! </h2>
-    )}
-    {gameStatus == 'lose' && (
-      <h2>Someone guessed it right. Better luck next time </h2>
-    )}
+        />
+        { gameStatus == 'y' && 
+        (<button onClick={handleSendingMessage}>S</button>
+        )}
+      </div>
     </div>
 
   );
