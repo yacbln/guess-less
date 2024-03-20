@@ -11,6 +11,7 @@ p {
     color: white;
 }
 .home-container {
+position: relative;
 max-width: 600px;
 margin: 100px auto; 
 padding: 50px 20px;
@@ -37,4 +38,12 @@ background-size: contain;
 .buttons Link {
 margin: 10px;
 font-weight: bold; 
+}
+
+
+.fixed-bottom-button {
+  position: absolute; 
+  bottom: 10px; 
+  left: 50%; 
+  transform: translateX(-50%); 
 }

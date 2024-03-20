@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {createSession,requestStartSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
-import logo from '../images/logo.png'
+import logo from '../images/logo.png';
+import Usernames from './misc/Usernames';
 
 
 const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
@@ -10,7 +11,11 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
   const [usersJoinedList, setUsersJoinedList] = useState([]);
   const [sessionStatus, setSessionStatus] = useState('SessionNotCreated');
   const navigate = useNavigate();
-  
+
+  // useEffect(() => {
+
+  //   console.log("use effect ==> ", usersJoinedList);
+  // });
 
   const connectWebSocket = () => {
     const socket = new WebSocket('ws://localhost:8080');
@@ -29,7 +34,7 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
         }
 
         if (data_received.type == "session_joined"){
-          console.log('someone joined the session!  ');
+          console.log('someone joined the session! ');
         }
 
         if (data_received.type == "user_joined"){
@@ -49,6 +54,9 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
 };
   const handleCreateSession = () => {
     connectWebSocket();
+    // console.log("adding myself: ", username);
+    addUser(username);
+
   };
 
   const addUser = (user) => {
@@ -82,8 +90,9 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
         <button className="btn btn-primary"> Home </button>
       </div> */}
       <img src={logo} alt="Logo" className="logo" />
-      <h3>Create a New Session</h3>
       {sessionStatus == 'SessionNotCreated' && (
+      <div>
+        <h3>Create a New Session</h3>
       <div className="row">
         <div className="input-group mb-3">
           <input
@@ -96,16 +105,19 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
           <button onClick={handleCreateSession} className="btn btn-primary">Create Session</button>
         </div>
       </div>
+      </div>
       )}
       {sessionStatus == 'WaitingForUsers' && (
       <div>
-        <h2>Session ID is: {sessionId}</h2>
-        <ul>
+        <h3>Session ID is: {sessionId}</h3>
+
+        <Usernames usernames={usersJoinedList} />
+        {/* <ul>
         {usersJoinedList.map((item, index) => (
             <li key={index}>{item}</li>
         ))}
-        </ul>
-        <button onClick={startSession} className="btn btn-primary">Start Game</button>
+        </ul> */}
+        <button onClick={startSession} className="btn btn-primary fixed-bottom-button">Start Game</button>
       </div>
       )}
 
