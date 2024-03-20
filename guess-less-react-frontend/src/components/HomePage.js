@@ -7,7 +7,7 @@ import logo from '../images/logo.png'
 const HomePage = () => {
   return (
     <div className="home-container">
-    <img src={logo} alt="Logo" className="logo-placeholder" />
+    <img src={logo} alt="Logo" className="logo" />
       <h1>Welcome to Guess Less</h1>
       <p>Start or join a session with friends!</p>
       <div className="buttons">

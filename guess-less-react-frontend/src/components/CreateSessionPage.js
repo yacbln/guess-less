@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {createSession,requestStartSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
-import './RunningSessionPage.css';
+import './HomePage.css';
+import logo from '../images/logo.png'
 
 
 const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
@@ -63,18 +64,37 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
   };
 
   return (
-    <div>
+
+    // <div className="home-container">
+    // <img src={logo} alt="Logo" className="logo" />
+    //   <h1>Welcome to Guess Less</h1>
+    //   <p>Start or join a session with friends!</p>
+    //   <div className="buttons">
+    //     <Link to="/create-session" className="btn btn-primary" style={{ marginRight: '20px' }}>Create New Session</Link>
+    //     <Link to="/join-session" className="btn btn-primary">Join Existing Session</Link>
+    //   </div>
+    // </div>
+
+
+    <div className="home-container">
+
+      {/* <div className="mb-3">
+        <button className="btn btn-primary"> Home </button>
+      </div> */}
+      <img src={logo} alt="Logo" className="logo" />
+      <h3>Create a New Session</h3>
       {sessionStatus == 'SessionNotCreated' && (
-      
-      <div>
+      <div className="row">
+        <div className="input-group mb-3">
           <input
-        type="text"
-        placeholder="Enter Username"
-        value={username}
-        onChange={handleInputChangeUsername}
-      />
-        <h2>Create a New Session</h2>
-        <button onClick={handleCreateSession}>Create Session</button>
+            type="text"
+            className="form-control"
+            placeholder="Enter Username"
+            value={username}
+            onChange={handleInputChangeUsername}
+          />
+          <button onClick={handleCreateSession} className="btn btn-primary">Create Session</button>
+        </div>
       </div>
       )}
       {sessionStatus == 'WaitingForUsers' && (
@@ -85,9 +105,10 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
             <li key={index}>{item}</li>
         ))}
         </ul>
-        <button onClick={startSession}>Start Game</button>
+        <button onClick={startSession} className="btn btn-primary">Start Game</button>
       </div>
       )}
+
     </div>
   );
 };
