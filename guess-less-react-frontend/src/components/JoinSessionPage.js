@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import {joinSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
+import logo from '../images/logo.png';
+import Usernames from './misc/Usernames';
 
 
 const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
   const [username, setUsername] = useState('');
+  const [usersJoinedList, setUsersJoinedList] = useState([]);
   const navigate = useNavigate();
   const [sessionStatus, setSessionStatus] = useState('SessionNotJoined');
   const [sessionIdToJoin, setSessionIdToJoin] = useState(null);
@@ -54,30 +57,38 @@ const handleInputChangeUsername = event => {
     setUsername(event.target.value);
   };
 
+const addUser = (user) => {
+    setUsersJoinedList((prevUsersJoinedList) => [...prevUsersJoinedList, user]);
+};
   return (
 
-    <div>
+    <div className="home-container">
+      <img src={logo} alt="Logo" className="logo" />
       {sessionStatus == 'SessionNotJoined' && (
       <div>
-      <h2>Join an Existing Session</h2>
-      <input
-        type="text"
-        placeholder="Enter session ID"
-        value={sessionId}
-        onChange={handleInputChangeSession}
-      />
-      <input
-        type="text"
-        placeholder="Enter Username"
-        value={username}
-        onChange={handleInputChangeUsername}
-      />
-      <button onClick={handleJoinSession}>Join Session</button>
+      <h3>Join a Session</h3>
+      <div className="input-group mb-3">
+        <input
+          type="text"
+          placeholder="Enter session ID"
+          className="form-control"
+          value={sessionId}
+          onChange={handleInputChangeSession}
+        />
+        <input
+          type="text"
+          placeholder="Enter Username"
+          className="form-control"
+          value={username}
+          onChange={handleInputChangeUsername}
+        />
+        <button onClick={handleJoinSession} className="btn btn-primary">Join Session</button>
+      </div>
     </div>
       )}
       {sessionStatus == 'SessionJoined' && (
       <div>
-        <h2>You joined the session, Please hold tight until the owner starts the game.</h2>
+        <h3>You joined the session, Please hold tight until the owner starts it.</h3>
       </div>
       )}
     </div>

@@ -35,6 +35,7 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
 
         if (data_received.type == "session_joined"){
           console.log('someone joined the session! ');
+          
         }
 
         if (data_received.type == "user_joined"){
@@ -92,7 +93,7 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
       <img src={logo} alt="Logo" className="logo" />
       {sessionStatus == 'SessionNotCreated' && (
       <div>
-        <h3>Create a New Session</h3>
+        <h3>Create a Session</h3>
       <div className="row">
         <div className="input-group mb-3">
           <input
@@ -117,7 +118,7 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
             <li key={index}>{item}</li>
         ))}
         </ul> */}
-        <button onClick={startSession} className="btn btn-primary fixed-bottom-button">Start Game</button>
+        <button onClick={startSession} className="btn btn-primary fixed-bottom-button">Start Session</button>
       </div>
       )}
 
