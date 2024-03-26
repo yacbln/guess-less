@@ -3,77 +3,81 @@ const Game = require('./Game.js');
 
 const wss = new WebSocket.Server({ port: 8080 });
 
-const sessions = {};
-const sessions_owners = {}
-const sessions_usernames = {}
-const game_objects = {}
+let sessions_owners = {}
+let sessions_uids = {}
+let uids_ws = {}
+let uids_usernames = {}
+let game_objects = {}
 
 wss.on('connection', function connection(ws) {
     console.log('A new client connected');
+    //make use of this space to declare commong things
+    const uid = generateUniqueID();
+    let session_id = null;
+    uids_ws[uid] = ws;
 
     ws.on('message', async function incoming(message) {
         console.log('Received:', message);
-
         const data = JSON.parse(message);
 
         switch (data.type) {
             case 'create_session':
-                const sessionId = generateSessionId();
+                session_id = generatesession_id();
+                sessions_uids[session_id] = [uid];
+                sessions_owners[session_id] = uid;
+                uids_usernames[uid] = data.username;
 
-                sessions[sessionId] = [ws];
-                sessions_owners[sessionId] = ws
-                sessions_usernames[sessionId] = [data.username]
-                console.log("---------- starting session username list: ",sessions_usernames[sessionId])
-                ws.send(JSON.stringify({ type: 'session_created', sessionId }));
+                ws.send(JSON.stringify({ type: 'session_created', sessionId:session_id }));
                 break;
             case 'join_session':
-                const joinSessionId = data.sessionId;
-                const username = data.username
+                const joinsession_id = data.sessionId;
+                const username = data.username;
 
-                if (sessions[joinSessionId]) {
-                    sessions[joinSessionId].push(ws);
-                    sessions_usernames[joinSessionId].push(username);
-                    message_tosend_tojoiner = JSON.stringify({ type: 'session_joined', sessionId: joinSessionId, username:username }) 
-                    message_tosend_toowner = JSON.stringify({ type: 'user_joined', sessionId: joinSessionId, username:username })
-                    ws.send(message_tosend_tojoiner);
+                if (sessions_uids.hasOwnProperty(joinsession_id)) {
+                    sessions_uids[joinsession_id].push(uid);
+                    session_id = joinsession_id;
+                    uids_usernames[uid] = username;
+
+                    const list_usernames = (sessions_uids[joinsession_id]).map(user_id => uids_usernames[user_id]);
+                    console.log("list usernames: ",list_usernames);
+                    ws.send(JSON.stringify({ type: 'session_joined',listUsernames:list_usernames}));
                     // send message to session owner
-                    sessions_owners[joinSessionId].send(message_tosend_toowner);
+                    uids_ws[sessions_owners[joinsession_id]].send(JSON.stringify({ type: 'user_joined', sessionId: joinsession_id, username:username }));
                 } else {
-                    // Send an error message to the client if the session does not exist
-                    ws.send(JSON.stringify({ type: 'session_not_found', sessionId: joinSessionId }));
+                    ws.send(JSON.stringify({ type: 'session_not_found', sessionId: joinsession_id }));
                 }
                 break;
+
             case 'start_session':
                 console.log("request to start session is received, sending back to each user in session")
                 //instantiate a game object specific to the session ID
-                const gameObject = new Game(sessions[data.sessionId].length);
+                const gameObject = new Game(sessions_uids[data.sessionId].length);
                 game_objects[data.sessionId] = gameObject;
                 const first_turn = game_objects[data.sessionId].updateTurn() 
                 console.log("first turn is: ", first_turn)
                 const hint = await game_objects[data.sessionId].getHint() 
                 console.log("====the hint is: ", hint)
                 //Let the clients know that the game session was started
-                sessions[data.sessionId].forEach(function each(client,index){
+                sessions_uids[data.sessionId].forEach(function each(user_id,index){
 
                     if (index == first_turn){
-                        client.send(JSON.stringify({ type: 'session_started',turn:'y',hint:hint}));
+                        uids_ws[user_id].send(JSON.stringify({ type: 'session_started',turn:'y',hint:hint}));
                     }
                     else {
-                        client.send(JSON.stringify({ type: 'session_started',turn:'n',hint:hint}));
+                        uids_ws[user_id].send(JSON.stringify({ type: 'session_started',turn:'n',hint:hint}));
                     }
                 });
                 break;
             case 'in_session':
                 // Send the session ID back to the client
-                console.log("In-session message received.")
-                console.log("printing session ID: ",data.sessionId)
-                console.log("pritinting message: ",data.message)
-                
+                // console.log("In-session message received.")
+                // console.log("printing session ID: ",data.session_id)
+                // console.log("pritinting message: ",data.message)
                 // first broadcast message to others in session 
-                sessions[data.sessionId].forEach(function each(client,index){
-                    if (ws != client){
-                        // console.log("to be sent to: ", sessions_usernames[joinSessionId][index])
-                        client.send(JSON.stringify({ message: data.message, user:sessions_usernames[data.sessionId][index]}));
+                sessions_uids[data.sessionId].forEach(function each(user_id,index){
+                    if (user_id != uid){
+                        // console.log("to be sent to: ", sessions_uids[joinsession_id][index])
+                        uids_ws[user_id].send(JSON.stringify({ message: data.message, user:sessions_uids[data.sessionId][index]}));
                     }
                 });
 
@@ -82,9 +86,9 @@ wss.on('connection', function connection(ws) {
                 if ( ans == 'win'){
                     // end the game, notify accordingly
                     ws.send(JSON.stringify({ message: 'win'}));
-                    sessions[data.sessionId].forEach(function each(client){
-                    if (client != ws){
-                        client.send(JSON.stringify({ message: 'lose'}));
+                    sessions_uids[data.sessionId].forEach(function each(user_id){
+                    if (user_id != uid){
+                        uids_ws[user_id].send(JSON.stringify({ message: 'lose'}));
                     }
                     // kill the game object 
                     game_objects[data.sessionId] = null;
@@ -97,17 +101,17 @@ wss.on('connection', function connection(ws) {
                     const new_turn = game_objects[data.sessionId].updateTurn();
 
                     console.log("new turn is: ", new_turn);
-                    sessions[data.sessionId].forEach(function each(client,index){
+                    sessions_uids[data.sessionId].forEach(function each(user_id,index){
                         if (index == new_turn){
-                            client.send(JSON.stringify({ message: ans, turn:'y'}));
+                            uids_ws[user_id].send(JSON.stringify({ message: ans, turn:'y'}));
                         }
                         else {
-                            client.send(JSON.stringify({ message: ans, turn:'n'}));
+                            uids_ws[user_id].send(JSON.stringify({ message: ans, turn:'n'}));
                         }
                     });
                 }
 
-                // sessions[data.sessionId].forEach(function each(client){
+                // sessions[data.session_id].forEach(function each(client){
                 //     client.send(JSON.stringify({ message:data.message}));
                 // });
                 break;
@@ -117,10 +121,57 @@ wss.on('connection', function connection(ws) {
     });
 
     ws.on('close', function close() {
-        console.log('Client disconnected');
+        console.log(`Client uid: ${uid} session_id: ${session_id} disconnected`);
+        
+        //case: session not started, owner left ==> make everyone leave
+        if (game_objects.hasOwnProperty(session_id)){
+        
+            sessions_owners = {}
+        // sessions_uids = {}   
+        // uids_ws = {}
+        // uids_usernames = {}
+        // game_objects = {}
+
+        // delete object['property'];
+
+        }
+        //case: else, anyone leave ==> only that person leaves
+        else{
+            sessions_uids[session_id] = (sessions_uids[session_id]).filter(user_id => user_id !== uid);
+
+            console.log("new users list: ", sessions_uids[session_id]);
+            console.log("user left is: ", uids_usernames[uid]);
+            //notify others in sessions of user leaving
+            sessions_uids[session_id].forEach(function each(user_id){
+                uids_ws[user_id].send(JSON.stringify({ type: 'user_left',username:uids_usernames[uid]}));
+            });
+
+            //cleanup 
+            delete uids_ws[uid];
+            delete uids_usernames[uid];
+        }
+        
+        // const leavesession_id = data.session_id;
+        // const usernameLeaving = data.username
+        // if (sessions[leavesession_id]) {
+        //     const indexToRemove = sessions_uids[leavesession_id].indexOf(usernameLeaving);
+        //     sessions[leavesession_id].splice(indexToRemove, 1);
+        //     sessions_uids[leavesession_id].splice(indexToRemove, 1);
+        //     sessions[leavesession_id].forEach(function each(client){
+        //         client.send(JSON.stringify({type: "user_left", username:usernameLeaving}));
+        //     });     
+        //     ws.send(JSON.stringify({type:'you_left'}));
+        // } else {
+        //     ws.send(JSON.stringify({ type: 'session_not_found', session_id: leavesession_id }));
+        // }
+        // break;
     });
 });
 
-function generateSessionId() {
+function generatesession_id() {
     return Math.random().toString(36).substr(2, 8);
 }
+
+function generateUniqueID() {
+    return Math.random().toString(36).substring(2, 15);
+  }

@@ -47,6 +47,10 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
           setInitTurn(data_received.turn)
           navigate('/run-session');
         }
+
+        if (data_received.type == "user_left"){
+          removeUser(data_received.username);
+        }
     };
     socket.onclose = () => {
         console.log('WebSocket disconnected');
@@ -62,6 +66,10 @@ const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn
 
   const addUser = (user) => {
     setUsersJoinedList((prevUsersJoinedList) => [...prevUsersJoinedList, user]);
+  };
+
+  const removeUser = (user) => {
+    setUsersJoinedList((prevUsersJoinedList) => prevUsersJoinedList.filter(user_id => user_id !== user));
   };
 
   const startSession = () => {

@@ -3,6 +3,7 @@ import {joinSession} from '../websocket/websocket';
 import { useNavigate } from 'react-router-dom';
 import logo from '../images/logo.png';
 import Usernames from './misc/Usernames';
+import WaitingDots from './misc/WaitingDots';
 
 
 const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
@@ -23,12 +24,15 @@ const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn})
   
       socket.onmessage = (event) => {
           const data_received = JSON.parse(event.data)
-          console.log('Received:', data_received);
+          // console.log('Received:', data_received);
 
           if (data_received.type == "session_joined"){
             console.log('You joined the session');
+            (data_received.listUsernames).map((username) => {
+              addUser(username);
+            });
+            setSessionId(sessionIdToJoin);
             setSessionStatus('SessionJoined');
-            setSessionId(sessionIdToJoin)
           }
 
           if (data_received.type == "session_started"){
@@ -36,11 +40,19 @@ const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn})
             setInitTurn(data_received.turn)
             navigate('/run-session');
           }
+
+          if (data_received.type == "user_left"){
+            removeUser(data_received.username);
+          }
       };
   
       socket.onclose = () => {
           console.log('WebSocket disconnected');
           setWs(null);
+          setSessionId(null);
+          setUsersJoinedList((prevUsersJoinedList) => []);
+          setSessionStatus('SessionNotJoined');
+
       };
   };
 
@@ -57,8 +69,18 @@ const handleInputChangeUsername = event => {
     setUsername(event.target.value);
   };
 
+const handleLeaveSession = () => {
+    ws.close();
+  };
 const addUser = (user) => {
     setUsersJoinedList((prevUsersJoinedList) => [...prevUsersJoinedList, user]);
+};
+const removeUser = (user) => {
+  setUsersJoinedList((prevUsersJoinedList) => prevUsersJoinedList.filter(user_id => user_id !== user));
+};
+
+const emptyUsers =() => {
+  setUsersJoinedList((prevUsersJoinedList) => []);
 };
   return (
 
@@ -88,11 +110,13 @@ const addUser = (user) => {
       )}
       {sessionStatus == 'SessionJoined' && (
       <div>
-        <h3>You joined the session, Please hold tight until the owner starts it.</h3>
+        <h3>You joined the session, Please hold tight until <span style={{ color: 'rgb(231, 76, 60)',fontWeight: 'bold' }}>{usersJoinedList[0]}</span> starts it.</h3>
+        <Usernames usernames={usersJoinedList} />
+        <WaitingDots />
+        <button onClick={handleLeaveSession} className="btn btn-primary fixed-bottom-button">Leave Session</button>
       </div>
       )}
     </div>
-
 
   );
 };
