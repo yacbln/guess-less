@@ -41,6 +41,10 @@ const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn})
             navigate('/run-session');
           }
 
+          if (data_received.type == "user_joined"){
+            addUser(data_received.username);
+          }
+
           if (data_received.type == "user_left"){
             removeUser(data_received.username);
           }

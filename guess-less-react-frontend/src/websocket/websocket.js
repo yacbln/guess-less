@@ -15,7 +15,7 @@ function joinSession (ws,sessionId_val,username_val) {
 };
 
 function requestStartSession (ws,sessionId_val) {
-    sendMessage(ws,{ type: 'leave_session',sessionId:sessionId_val});
+    sendMessage(ws,{ type: 'start_session',sessionId:sessionId_val});
 };
 
 function requestLeaveSession (ws,sessionId_val) {

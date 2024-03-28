@@ -41,8 +41,12 @@ wss.on('connection', function connection(ws) {
                     const list_usernames = (sessions_uids[joinsession_id]).map(user_id => uids_usernames[user_id]);
                     console.log("list usernames: ",list_usernames);
                     ws.send(JSON.stringify({ type: 'session_joined',listUsernames:list_usernames}));
-                    // send message to session owner
-                    uids_ws[sessions_owners[joinsession_id]].send(JSON.stringify({ type: 'user_joined', sessionId: joinsession_id, username:username }));
+                    // send message to others in session
+                    sessions_uids[joinsession_id].forEach(function each(user_id){
+                        if (user_id != uid){
+                            uids_ws[user_id].send(JSON.stringify({ type: 'user_joined', username:username }));
+                        }
+                    });
                 } else {
                     ws.send(JSON.stringify({ type: 'session_not_found', sessionId: joinsession_id }));
                 }

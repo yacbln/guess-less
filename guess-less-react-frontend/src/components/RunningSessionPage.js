@@ -2,6 +2,7 @@ import {React,useState} from 'react';
 import {sendInSessionMessage} from '../websocket/websocket';
 import CountdownTimer from './misc/Timer'
 import Message from './misc/Message';
+import './RunningSessionPage.css';
 
 const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
   const [message, setMessage] = useState('');
