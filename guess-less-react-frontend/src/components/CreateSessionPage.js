@@ -6,9 +6,7 @@ import logo from '../images/logo.png';
 import Usernames from './misc/Usernames';
 
 
-const CreateSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
-  const [username, setUsername] = useState('');
-  const [usersJoinedList, setUsersJoinedList] = useState([]);
+const CreateSessionPage = ({ws,setWs,sessionId,setSessionId,usersJoinedList,setUsersJoinedList,setHint,setInitTurn,username,setUsername}) => {
   const [sessionStatus, setSessionStatus] = useState('SessionNotCreated');
   const navigate = useNavigate();
 

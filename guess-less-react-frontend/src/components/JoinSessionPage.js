@@ -6,9 +6,7 @@ import Usernames from './misc/Usernames';
 import WaitingDots from './misc/WaitingDots';
 
 
-const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,setHint, setInitTurn}) => {
-  const [username, setUsername] = useState('');
-  const [usersJoinedList, setUsersJoinedList] = useState([]);
+const JoinSessionPage = ({setWs,setSessionId,ws,sessionId,usersJoinedList,setUsersJoinedList,setHint, setInitTurn,username,setUsername}) => {
   const navigate = useNavigate();
   const [sessionStatus, setSessionStatus] = useState('SessionNotJoined');
   const [sessionIdToJoin, setSessionIdToJoin] = useState(null);
@@ -83,9 +81,6 @@ const removeUser = (user) => {
   setUsersJoinedList((prevUsersJoinedList) => prevUsersJoinedList.filter(user_id => user_id !== user));
 };
 
-const emptyUsers =() => {
-  setUsersJoinedList((prevUsersJoinedList) => []);
-};
   return (
 
     <div className="home-container">

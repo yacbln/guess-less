@@ -3,39 +3,45 @@ import {sendInSessionMessage} from '../websocket/websocket';
 import CountdownTimer from './misc/Timer'
 import Message from './misc/Message';
 import './RunningSessionPage.css';
+import Usernames from './misc/Usernames';
+import logo from '../images/logo.png';
 
-const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
+const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
   const [message, setMessage] = useState('');
   const [gameStatus, setGameStatus] = useState(initTurn);
-  const [messagesList, setMessagesList] = useState([]);
+  const [messagesList, setMessagesList] = useState([['How are you','Yacine',0,true],['How are you','Lounes',1,false], ['No','Lounes',-1,false]]);
+  //to style the page 
+  const hint = 'Come here for an extra'
+  const usersJoinedList = ['Yacine', 'Lounes','Araceli'];
+  const usernameIndex = usersJoinedList.indexOf(username)
+//   ws.onmessage = (event) => {
+//     const data_received = JSON.parse(event.data)
+//     console.log('Received:', data_received);
+//     console.log('Message received is: ', data_received.message)
 
-  ws.onmessage = (event) => {
-    const data_received = JSON.parse(event.data)
-    console.log('Received:', data_received);
-    console.log('Message received is: ', data_received.message)
+//     if (data_received.hasOwnProperty('user')){
+//       addMessage(data_received.message,data_received.user)
+//     }
+//     else if (data_received.message === 'lose' || data_received.message === 'win'){
+//       setGameStatus(data_received.message);
+//     }
+//     else {
+//       addMessage(data_received.message,"Moderator")
+//     }
 
-    if (data_received.hasOwnProperty('user')){
-      addMessage(data_received.message,data_received.user)
-    }
-    else if (data_received.message === 'lose' || data_received.message === 'win'){
-      setGameStatus(data_received.message);
-    }
-    else {
-      addMessage(data_received.message,"Moderator")
-    }
-
-    if (data_received.hasOwnProperty('turn')){
-      setGameStatus(data_received.turn)
+//     if (data_received.hasOwnProperty('turn')){
+//       setGameStatus(data_received.turn)
     
-    }
+//     }
 
 
-};
-  ws.onclose = () => {
-      console.log('WebSocket disconnected');
-      setWs(null);
-  };
+// };
+//   ws.onclose = () => {
+//       console.log('WebSocket disconnected');
+//       setWs(null);
+//   };
 
+  
   const handleSendingMessage = () => {
     //send message to server (backend)
     sendInSessionMessage(ws,sessionId,message);
@@ -56,9 +62,14 @@ const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
 
       <div className="chat-header">   
         <CountdownTimer></CountdownTimer>
-        <div className="participants-list">Participants</div>
-
-        <h1>Hint: {hint}</h1>
+        {/* <div className="participants-list">
+          <ul>
+          {usersJoinedList.map((item, index) => (
+              <li key={index}>{item}</li>
+          ))}
+          </ul> 
+        </div> */}
+        <Usernames usernames={usersJoinedList} showIndex ={usernameIndex} />
         {gameStatus == 'win' && (
         <h2>You Guessed it right !!! </h2>
         )}
@@ -66,10 +77,14 @@ const RunningSessionPage = ({setWs,ws,sessionId,hint,initTurn}) => {
         <h2>Someone guessed it right. Better luck next time </h2>
         )}
       </div>
+
+      <div class="chat-hint">
+      <i class="fas fa-info-circle"></i> <span>Hint:</span> <span class="hint-text">{hint} </span>
+      </div>
       
       <div className="chat-messages">
       {messagesList.map((msg,idx) => (
-        <Message key={idx} text={msg} user={{name:"Yacine",avatar:"../../images/avatar.png"}} isCurrentUser={true} />
+        <Message key={idx} text={msg[0]} usernameChar={msg[1].charAt(0)} colorIndex={msg[2]} isCurrentUser={msg[3]} />
       ))}
     </div>
 
