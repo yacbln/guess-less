@@ -9,7 +9,7 @@ import logo from '../images/logo.png';
 const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
   const [message, setMessage] = useState('');
   const [gameStatus, setGameStatus] = useState(initTurn);
-  const [messagesList, setMessagesList] = useState([['How are you','Yacine',0,true],['How are you','Lounes',1,false], ['No','Lounes',-1,false]]);
+  const [messagesList, setMessagesList] = useState([['How are you','Yacine',0,true,false],['How are you','Lounes',1,false,true], ['No','Lounes',-1,false,false]]);
   //to style the page 
   const hint = 'Come here for an extra'
   const usersJoinedList = ['Yacine', 'Lounes','Araceli'];
@@ -70,6 +70,7 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
           </ul> 
         </div> */}
         <Usernames usernames={usersJoinedList} showIndex ={usernameIndex} />
+        <div class="status-message">Online</div>
         {gameStatus == 'win' && (
         <h2>You Guessed it right !!! </h2>
         )}
@@ -84,7 +85,7 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
       
       <div className="chat-messages">
       {messagesList.map((msg,idx) => (
-        <Message key={idx} text={msg[0]} usernameChar={msg[1].charAt(0)} colorIndex={msg[2]} isCurrentUser={msg[3]} />
+        <Message key={idx} textMsg={msg[0]} usernameChar={msg[1].charAt(0)} colorIndex={msg[2]} isCurrentUser={msg[3]} hidden={msg[4]} />
       ))}
     </div>
 
