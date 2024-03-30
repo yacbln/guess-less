@@ -70,7 +70,12 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
           </ul> 
         </div> */}
         <Usernames usernames={usersJoinedList} showIndex ={usernameIndex} />
-        <div class="status-message">Online</div>
+        {/* <div class="status-message">Online</div> */}
+        <div class="announcement-board">
+  <div class="board-content">
+   Hello
+  </div>
+</div>
         {gameStatus == 'win' && (
         <h2>You Guessed it right !!! </h2>
         )}
