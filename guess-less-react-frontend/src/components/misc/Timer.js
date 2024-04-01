@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './Timer.css';
 
-const CountdownTimer = ({ initialCount = 60 }) => {
+const CountdownTimer = ({ initialCount =10, resetFlag=false,setPenalized}) => {
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
+    setCount(initialCount);
+  }, [resetFlag, initialCount]);
+
+  useEffect(() => {
     if (count <= 0) {
-      console.log('Timer finished');
+      setPenalized(true);
       return;
     }
 
@@ -23,7 +27,6 @@ const CountdownTimer = ({ initialCount = 60 }) => {
     <div className="clock-display">
      {count}
     </div>
-    <button onClick={() => setCount(initialCount)}> Reset Timer </button>
     </div>
     
     

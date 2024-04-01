@@ -15,21 +15,22 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 10px;
+    padding: 5px;
     background-color: #ddd;
     border-bottom: 1px solid #ddd;
-    gap: 200px; 
   }
 
   .chat-header > :nth-child(1) {
     padding-left: 30px;
+    padding-right: 50px;
   }
   .chat-header > :nth-child(2) {
-    padding-right: 20px;
+    margin-right: 20px;
   }
-  /* .chat-header > :nth-child(2) {
-    width: 200px;
-  } */
+  .chat-header > :last-child {
+    position: absolute;
+    left:550px;
+  }
   
 
   /* .status-message {
@@ -49,12 +50,12 @@
     display: flex; 
     justify-content: center;
     align-items: center;
-    font-size: 16px; 
+    font-size: 14px; 
     color: #333; 
   }
 
   .chat-hint i {
-  padding-right: 10px;
+  padding-right: 5px;
   }
 
   .chat-hint .hint-text {
@@ -81,6 +82,7 @@
     padding: 10px;
     border: 1px solid #5e4747;
     border-radius: 4px;
+    font-size: 14px; 
   }
   
   .chat-input button {

@@ -1,19 +1,35 @@
 import {React,useState} from 'react';
 import {sendInSessionMessage} from '../websocket/websocket';
+import { useNavigate } from 'react-router-dom';
 import CountdownTimer from './misc/Timer'
 import Message from './misc/Message';
 import './RunningSessionPage.css';
 import Usernames from './misc/Usernames';
 import logo from '../images/logo.png';
+import { IoMdSend } from "react-icons/io";
+import SessionOverModal from './SessionOverModal';
+
 
 const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
-  const [gameStatus, setGameStatus] = useState(initTurn);
+  //for dynamic stuff
+  // const [gameStatus, setGameStatus] = useState(initTurn);
+  const [gameStatus, setGameStatus] = useState('y');
+
+  const [penalized,setPenalized] = useState(false);
   const [messagesList, setMessagesList] = useState([['How are you','Yacine',0,true,false],['How are you','Lounes',1,false,true], ['No','Lounes',-1,false,false]]);
   //to style the page 
   const hint = 'Come here for an extra'
   const usersJoinedList = ['Yacine', 'Lounes','Araceli'];
-  const usernameIndex = usersJoinedList.indexOf(username)
+  const usernameIndex = usersJoinedList.indexOf('Araceli');
+  //to reset timer
+  const [timerReset, setTimerReset] = useState(false);
+
+  //for the Modal
+  const [isGameOver, setIsGameOver] = useState(false);
+  const endGame = () => setIsGameOver(true);
+  const closeModal = () => setIsGameOver(false);
 //   ws.onmessage = (event) => {
 //     const data_received = JSON.parse(event.data)
 //     console.log('Received:', data_received);
@@ -33,7 +49,6 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
 //       setGameStatus(data_received.turn)
     
 //     }
-
 
 // };
 //   ws.onclose = () => {
@@ -57,11 +72,24 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
     setMessagesList((prevMessagesList) => [...prevMessagesList, `${speaker} : ${message}`]);
   };
 
+  console.log("run page getting reendered again");
+
+  const handleRejoinSession = () => {
+    
+  }
+
+  const handleGoingHome = () => {
+    // do cleanup
+    
+    navigate('/');
+  }
+    
+
   return (
     <div className="chat-container">
 
       <div className="chat-header">   
-        <CountdownTimer></CountdownTimer>
+        <CountdownTimer resetFlag={timerReset} setPenalized={setPenalized}></CountdownTimer>
         {/* <div className="participants-list">
           <ul>
           {usersJoinedList.map((item, index) => (
@@ -69,13 +97,9 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
           ))}
           </ul> 
         </div> */}
-        <Usernames usernames={usersJoinedList} showIndex ={usernameIndex} />
-        {/* <div class="status-message">Online</div> */}
-        <div class="announcement-board">
-  <div class="board-content">
-   Hello
-  </div>
-</div>
+        <button onClick={endGame}>End Game</button>
+        <Usernames usernames={usersJoinedList} indexShow ={usernameIndex} />
+        <Message textMsg="It is Yacine's turn." usernameChar={'A'} colorIndex={-1} isCurrentUser={false} hidden={false} animatedText={true} />
         {gameStatus == 'win' && (
         <h2>You Guessed it right !!! </h2>
         )}
@@ -111,9 +135,10 @@ const RunningSessionPage = ({setWs,ws,sessionId,initTurn,username}) => {
         onChange={handleInputChangeMessage}
         />
         { gameStatus == 'y' && 
-        (<button onClick={handleSendingMessage}>S</button>
+        (<button onClick={handleSendingMessage}><IoMdSend/></button>
         )}
       </div>
+      <SessionOverModal isVisible={isGameOver} onClose={closeModal} handleRejoinSession={handleRejoinSession} handleGoingHome={handleGoingHome}/>
     </div>
 
   );

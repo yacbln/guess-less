@@ -14,9 +14,6 @@ const App = () => {
   const [initTurn, setInitTurn] = useState(false);
   const [username, setUsername] = useState('');
 
-  useEffect(() => {
-    console.log('From App.js: WebSocket connection:', ws);
-  }, [ws]);
   return ( 
     <div>
       <Router>
