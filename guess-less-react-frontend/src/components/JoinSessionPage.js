@@ -72,6 +72,7 @@ const handleInputChangeUsername = event => {
   };
 
 const handleLeaveSession = () => {
+    console.log("printing ws: ",ws);
     ws.close();
   };
 const addUser = (user) => {

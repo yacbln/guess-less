@@ -76,6 +76,10 @@ class Game {
         const resp = this.getResponse(user_prompt,this.system_prompt);
         return resp;
     }
+
+    getword(){
+        return this.word;
+    }
   }
 
 

@@ -57,19 +57,13 @@ wss.on('connection', function connection(ws) {
                 //instantiate a game object specific to the session ID
                 const gameObject = new Game(sessions_uids[data.sessionId].length);
                 game_objects[data.sessionId] = gameObject;
-                const first_turn = game_objects[data.sessionId].updateTurn() 
-                console.log("first turn is: ", first_turn)
-                const hint = await game_objects[data.sessionId].getHint() 
-                console.log("====the hint is: ", hint)
+                const first_turn = game_objects[data.sessionId].updateTurn(); 
+                console.log("in start_session: first turn index selected: ",first_turn);
+                const hint = await game_objects[data.sessionId].getHint(); 
+                console.log("====the hint is: ", hint);
                 //Let the clients know that the game session was started
                 sessions_uids[data.sessionId].forEach(function each(user_id,index){
-
-                    if (index == first_turn){
-                        uids_ws[user_id].send(JSON.stringify({ type: 'session_started',turn:'y',hint:hint}));
-                    }
-                    else {
-                        uids_ws[user_id].send(JSON.stringify({ type: 'session_started',turn:'n',hint:hint}));
-                    }
+                    uids_ws[user_id].send(JSON.stringify({ type: 'session_started',turn:first_turn,hint:hint}));
                 });
                 break;
             case 'in_session':
@@ -89,10 +83,11 @@ wss.on('connection', function connection(ws) {
 
                 if ( ans == 'win'){
                     // end the game, notify accordingly
-                    ws.send(JSON.stringify({ message: 'win'}));
+                    const word_toguess = game_objects[data.sessionId].getword();
+                    ws.send(JSON.stringify({end_message:'win',winner:uids_usernames[uid], word:word_toguess}));
                     sessions_uids[data.sessionId].forEach(function each(user_id){
                     if (user_id != uid){
-                        uids_ws[user_id].send(JSON.stringify({ message: 'lose'}));
+                        uids_ws[user_id].send(JSON.stringify({end_message:'lose', winner:uids_usernames[uid],word:word_toguess}));
                     }
                     // kill the game object 
                     game_objects[data.sessionId] = null;
@@ -101,23 +96,23 @@ wss.on('connection', function connection(ws) {
                 } else {
                     // send the message, update the turn
                     console.log("got a no-win message..");
-
                     const new_turn = game_objects[data.sessionId].updateTurn();
-
                     console.log("new turn is: ", new_turn);
-                    sessions_uids[data.sessionId].forEach(function each(user_id,index){
-                        if (index == new_turn){
-                            uids_ws[user_id].send(JSON.stringify({ message: ans, turn:'y'}));
-                        }
-                        else {
-                            uids_ws[user_id].send(JSON.stringify({ message: ans, turn:'n'}));
-                        }
+                    sessions_uids[data.sessionId].forEach(function each(user_id){
+                        uids_ws[user_id].send(JSON.stringify({ message: ans, turn:new_turn}));
                     });
                 }
-
                 // sessions[data.session_id].forEach(function each(client){
                 //     client.send(JSON.stringify({ message:data.message}));
                 // });
+                break;
+            case 'in_session_penalized': 
+                //the server needs to update the turn and notify all participants
+                const new_turn = game_objects[data.sessionId].updateTurn();
+                console.log("due to Penalized: new turn is: ", new_turn);
+                sessions_uids[data.sessionId].forEach(function each(user_id){
+                    uids_ws[user_id].send(JSON.stringify({ turn:new_turn}));
+                });
                 break;
             default:
                 break; 

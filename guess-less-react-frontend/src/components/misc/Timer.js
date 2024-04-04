@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Timer.css';
 
-const CountdownTimer = ({ initialCount =10, resetFlag=false,setPenalized}) => {
+const CountdownTimer = ({ initialCount=20, resetFlag=false,handlePenalized,stopFlag=false}) => {
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
@@ -10,17 +10,20 @@ const CountdownTimer = ({ initialCount =10, resetFlag=false,setPenalized}) => {
 
   useEffect(() => {
     if (count <= 0) {
-      setPenalized(true);
+      handlePenalized();
       return;
     }
-
+    //stop timer at the end of the game
+    if (stopFlag){
+      return;
+    }
     const intervalId = setInterval(() => {
       setCount(count - 1);
     }, 1000);
 
     return () => clearInterval(intervalId);
 
-  }, [count]);
+  }, [count,stopFlag]);
 
   return (
     <div>

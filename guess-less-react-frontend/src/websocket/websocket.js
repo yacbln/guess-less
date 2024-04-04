@@ -27,10 +27,16 @@ function sendInSessionMessage(ws,sessionId_val,message){
     
 }
 
+function sendInSessionPenalized (ws,sessionId_val){
+    sendMessage(ws,{ type:'in_session_penalized',sessionId:sessionId_val});
+    
+}
+
 module.exports = {
     createSession,
     joinSession, 
     requestStartSession,
     requestLeaveSession,
-    sendInSessionMessage
+    sendInSessionMessage,
+    sendInSessionPenalized
 };

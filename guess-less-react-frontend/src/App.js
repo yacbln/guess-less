@@ -11,7 +11,7 @@ const App = () => {
   const [sessionId, setSessionId] = useState(null);
   const [usersJoinedList, setUsersJoinedList] = useState([]);
   const [hint, setHint] = useState('');
-  const [initTurn, setInitTurn] = useState(false);
+  const [initTurnIdx, setInitTurnIdx] = useState(false);
   const [username, setUsername] = useState('');
 
   return ( 
@@ -19,9 +19,9 @@ const App = () => {
       <Router>
           <Routes>
             <Route exact path="/" element={<HomePage/>} />
-            <Route path="/create-session" element={<CreateSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId} usersJoinedList={usersJoinedList} setUsersJoinedList={setUsersJoinedList} setHint={setHint} setInitTurn={setInitTurn} username={username} setUsername={setUsername}/>} />
-            <Route path="/join-session" element={<JoinSessionPage setWs={setWs} setSessionId={setSessionId} setws={ws} sessionId={sessionId} usersJoinedList={usersJoinedList} setUsersJoinedList={setUsersJoinedList} setHint={setHint} setInitTurn={setInitTurn} username={username} setUsername={setUsername}/>} />
-            <Route path="/run-session" element={<RunningSessionPage setWs={setWs} ws={ws} sessionId={sessionId} usersJoinedList={usersJoinedList} hint={hint} initTurn={initTurn} username={username}/>} />
+            <Route path="/create-session" element={<CreateSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId} usersJoinedList={usersJoinedList} setUsersJoinedList={setUsersJoinedList} setHint={setHint} setInitTurn={setInitTurnIdx} username={username} setUsername={setUsername}/>} />
+            <Route path="/join-session" element={<JoinSessionPage setWs={setWs} setSessionId={setSessionId} ws={ws} sessionId={sessionId} usersJoinedList={usersJoinedList} setUsersJoinedList={setUsersJoinedList} setHint={setHint} setInitTurn={setInitTurnIdx} username={username} setUsername={setUsername}/>} />
+            <Route path="/run-session" element={<RunningSessionPage setWs={setWs} ws={ws} sessionId={sessionId} usersJoinedList={usersJoinedList} hint={hint} initTurnIdx={initTurnIdx} username={username}/>} />
           </Routes>
       </Router>
     </div>
